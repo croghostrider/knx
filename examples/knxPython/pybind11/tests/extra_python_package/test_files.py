@@ -117,23 +117,19 @@ def test_build_sdist(monkeypatch, tmpdir):
     (sdist,) = tmpdir.visit("*.tar")
 
     with tarfile.open(str(sdist)) as tar:
-        start = tar.getnames()[0] + "/"
+        start = f"{tar.getnames()[0]}/"
         version = start[9:-1]
-        simpler = set(n.split("/", 1)[-1] for n in tar.getnames()[1:])
+        simpler = {n.split("/", 1)[-1] for n in tar.getnames()[1:]}
 
-        with contextlib.closing(
-            tar.extractfile(tar.getmember(start + "setup.py"))
-        ) as f:
+        with contextlib.closing(tar.extractfile(tar.getmember(f"{start}setup.py"))) as f:
             setup_py = f.read()
 
-        with contextlib.closing(
-            tar.extractfile(tar.getmember(start + "pyproject.toml"))
-        ) as f:
+        with contextlib.closing(tar.extractfile(tar.getmember(f"{start}pyproject.toml"))) as f:
             pyproject_toml = f.read()
 
-    files = set("pybind11/{}".format(n) for n in all_files)
+    files = {f"pybind11/{n}" for n in all_files}
     files |= sdist_files
-    files |= set("pybind11{}".format(n) for n in local_sdist_files)
+    files |= {f"pybind11{n}" for n in local_sdist_files}
     files.add("pybind11.egg-info/entry_points.txt")
     files.add("pybind11.egg-info/requires.txt")
     assert simpler == files
@@ -172,23 +168,19 @@ def test_build_global_dist(monkeypatch, tmpdir):
     (sdist,) = tmpdir.visit("*.tar")
 
     with tarfile.open(str(sdist)) as tar:
-        start = tar.getnames()[0] + "/"
+        start = f"{tar.getnames()[0]}/"
         version = start[16:-1]
-        simpler = set(n.split("/", 1)[-1] for n in tar.getnames()[1:])
+        simpler = {n.split("/", 1)[-1] for n in tar.getnames()[1:]}
 
-        with contextlib.closing(
-            tar.extractfile(tar.getmember(start + "setup.py"))
-        ) as f:
+        with contextlib.closing(tar.extractfile(tar.getmember(f"{start}setup.py"))) as f:
             setup_py = f.read()
 
-        with contextlib.closing(
-            tar.extractfile(tar.getmember(start + "pyproject.toml"))
-        ) as f:
+        with contextlib.closing(tar.extractfile(tar.getmember(f"{start}pyproject.toml"))) as f:
             pyproject_toml = f.read()
 
-    files = set("pybind11/{}".format(n) for n in all_files)
+    files = {f"pybind11/{n}" for n in all_files}
     files |= sdist_files
-    files |= set("pybind11_global{}".format(n) for n in local_sdist_files)
+    files |= {f"pybind11_global{n}" for n in local_sdist_files}
     assert simpler == files
 
     with open(os.path.join(MAIN_DIR, "tools", "setup_global.py.in"), "rb") as f:
@@ -213,7 +205,7 @@ def tests_build_wheel(monkeypatch, tmpdir):
 
     (wheel,) = tmpdir.visit("*.whl")
 
-    files = set("pybind11/{}".format(n) for n in all_files)
+    files = {f"pybind11/{n}" for n in all_files}
     files |= {
         "dist-info/LICENSE",
         "dist-info/METADATA",
@@ -226,10 +218,11 @@ def tests_build_wheel(monkeypatch, tmpdir):
     with zipfile.ZipFile(str(wheel)) as z:
         names = z.namelist()
 
-    trimmed = set(n for n in names if "dist-info" not in n)
-    trimmed |= set(
-        "dist-info/{}".format(n.split("/", 1)[-1]) for n in names if "dist-info" in n
-    )
+    trimmed = {n for n in names if "dist-info" not in n}
+    trimmed |= {
+        f'dist-info/{n.split("/", 1)[-1]}' for n in names if "dist-info" in n
+    }
+
     assert files == trimmed
 
 
@@ -243,8 +236,8 @@ def tests_build_global_wheel(monkeypatch, tmpdir):
 
     (wheel,) = tmpdir.visit("*.whl")
 
-    files = set("data/data/{}".format(n) for n in src_files)
-    files |= set("data/headers/{}".format(n[8:]) for n in headers)
+    files = {f"data/data/{n}" for n in src_files}
+    files |= {f"data/headers/{n[8:]}" for n in headers}
     files |= {
         "dist-info/LICENSE",
         "dist-info/METADATA",
@@ -257,6 +250,6 @@ def tests_build_global_wheel(monkeypatch, tmpdir):
         names = z.namelist()
 
     beginning = names[0].split("/", 1)[0].rsplit(".", 1)[0]
-    trimmed = set(n[len(beginning) + 1 :] for n in names)
+    trimmed = {n[len(beginning) + 1 :] for n in names}
 
     assert files == trimmed

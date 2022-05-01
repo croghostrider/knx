@@ -125,16 +125,13 @@ class Pybind11Extension(_Extension):
         # Include the installed package pybind11 headers
         if include_pybind11:
             # If using setup_requires, this fails the first time - that's okay
-            try:
+            with contextlib.suppress(ImportError):
                 import pybind11
 
                 pyinc = pybind11.get_include()
 
                 if pyinc not in self.include_dirs:
                     self.include_dirs.append(pyinc)
-            except ImportError:
-                pass
-
         # Have to use the accessor manually to support Python 2 distutils
         Pybind11Extension.cxx_std.__set__(self, cxx_std)
 
