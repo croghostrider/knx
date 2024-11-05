@@ -350,9 +350,7 @@ def generate_doxygen_xml(app):
 
 
 def prepare(app):
-    with open(DIR.parent / "README.rst") as f:
-        contents = f.read()
-
+    contents = Path(DIR.parent / "README.rst").read_text()
     # Filter out section titles for index.rst for LaTeX
     if app.builder.name == "latex":
         contents = re.sub(r"^(.*)\n[-~]{3,}$", r"**\1**", contents, flags=re.MULTILINE)

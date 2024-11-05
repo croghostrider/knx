@@ -44,9 +44,7 @@ with open("include/pybind11/detail/common.h") as f:
     matches = dict(VERSION_REGEX.findall(f.read()))
 cpp_version = "{MAJOR}.{MINOR}.{PATCH}".format(**matches)
 if version != cpp_version:
-    msg = "Python version {} does not match C++ version {}!".format(
-        version, cpp_version
-    )
+    msg = f"Python version {version} does not match C++ version {cpp_version}!"
     raise RuntimeError(msg)
 
 

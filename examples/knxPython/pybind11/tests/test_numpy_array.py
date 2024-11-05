@@ -20,9 +20,7 @@ def test_dtypes():
         assert check.numpy == check.pybind11, check
         if check.numpy.num != check.pybind11.num:
             print(
-                "NOTE: typenum mismatch for {}: {} != {}".format(
-                    check, check.numpy.num, check.pybind11.num
-                )
+                f"NOTE: typenum mismatch for {check}: {check.numpy.num} != {check.pybind11.num}"
             )
 
 
@@ -118,9 +116,7 @@ def test_at_fail(arr, dim):
     for func in m.at_t, m.mutate_at_t:
         with pytest.raises(IndexError) as excinfo:
             func(arr, *([0] * dim))
-        assert str(excinfo.value) == "index dimension mismatch: {} (ndim = 2)".format(
-            dim
-        )
+        assert str(excinfo.value) == f"index dimension mismatch: {dim} (ndim = 2)"
 
 
 def test_at(arr):
@@ -512,7 +508,7 @@ def test_argument_conversions(forcecast, contiguity, noconvert):
                     # If noconvert is passed, only float64 and the matching order is accepted.
                     # If at most one dimension has a size greater than 1, the array is also
                     # trivially contiguous.
-                    trivially_contiguous = sum(1 for d in shape if d > 1) <= 1
+                    trivially_contiguous = sum(d > 1 for d in shape) <= 1
                     should_raise = dtype.name != "float64" or (
                         contiguity is not None
                         and contiguity != order
